@@ -19,3 +19,11 @@
   
   display:inline-block;
 }
+
+.jigsaw-board {
+  position: relative;
+}
+
+.jigsaw-piece {
+  position: absolute;
+}
