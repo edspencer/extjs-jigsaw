@@ -19,8 +19,8 @@ Jigsaw.Board = Ext.extend(Ext.Container, {
     var config = config || {};
     
     Ext.applyIf(config, {
-      piecesX:  10,
-      piecesY:  8,
+      piecesX:  8,
+      piecesY:  6,
       imageUrl: Jigsaw.Game.prototype.defaultImageUrl
     });
     
@@ -55,7 +55,8 @@ Jigsaw.Board = Ext.extend(Ext.Container, {
           height:  pieceHeight,
           width:   pieceWidth,
           xOffset: i * pieceWidth,
-          yOffset: j * pieceHeight
+          yOffset: j * pieceHeight,
+          imageUrl: this.imageUrl
         }));
       };
     };
@@ -99,6 +100,36 @@ Jigsaw.Board = Ext.extend(Ext.Container, {
       
       this.pieces[i].getEl().moveTo(randX, randY, animate);
     };
+  },
+  
+  /**
+   * Solves the Jigsaw by moving each piece to it's correct location
+   * @param {Boolean} animate True to animate movement
+   */
+  solve: function(animate) {
+    var animate = animate || true;
+    
+    var left   = this.getEl().getLeft();
+    var top    = this.getEl().getTop();
+    
+    for (var i = this.pieces.length - 1; i >= 0; i--){
+      var piece = this.pieces[i];
+      piece.getEl().moveTo(left + piece.xOffset, top + piece.yOffset, animate);
+    };
+  },
+  
+  /**
+   * Returns the number of complete and the number of incomplete items
+   * @return {Object} An object with two properties - complete and incomplete
+   */
+  getCompletionStatus: function() {
+    var complete = 0; var incomplete = 0;
+    
+    for (var i=0; i < this.pieces.length; i++) {
+      this.pieces[i].isInCorrectPosition() ? complete++ : incomplete++;
+    };
+    
+    return {complete: complete, incomplete: incomplete};
   },
   
   /**

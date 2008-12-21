@@ -68,7 +68,8 @@ Ext.extend(Jigsaw.Piece, Ext.Component, {
    * @return {Boolean} True if this piece is in the right position
    */
   isInCorrectPosition: function() {
-    
+    return (this.el.getLeft() - this.container.getLeft() == this.xOffset) && 
+           (this.el.getTop()  - this.container.getTop()  == this.yOffset);
   }
 });
 
