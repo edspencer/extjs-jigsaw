@@ -10,11 +10,12 @@ Jigsaw.Piece = function(config) {
   var config = config || {};
  
   Ext.applyIf(config, {
-    width:    100,
-    height:   100,
-    xOffset:  0,
-    yOffset:  0,
-    imageUrl: Jigsaw.Game.prototype.defaultImageUrl
+    width:         100,
+    height:        100,
+    xOffset:       0,
+    yOffset:       0,
+    dropTolerance: 5,
+    imageUrl:      Jigsaw.Game.prototype.defaultImageUrl
   });
  
   Jigsaw.Piece.superclass.constructor.call(this, config);
@@ -42,7 +43,33 @@ Ext.extend(Jigsaw.Piece, Ext.Component, {
     this.dd = new Ext.dd.DDProxy(this.el.id, 'pieces');
     this.dd.startDrag = function() { this.constrainTo(ct.id); };
     
+    var piece = this; //closure needed for endDrag below:
+    this.dd.endDrag   = function() {
+      Ext.dd.DDProxy.prototype.endDrag.apply(this, arguments); //super
+      
+      if (piece.withinDropTolerance()) {
+        piece.moveToCorrectPosition();
+      };
+    };
+    
     this.moveToCorrectPosition();
+  },
+  
+  /**
+   * Returns true if this piece is close enough to its correct position to be auto-moved there
+   * @param {Number} tolerance The number of pixels of tolerance to allow (defaults to this.dropTolerance)
+   * @return {Boolean} true if within drop tolerance
+   */
+  withinDropTolerance: function(tolerance) {
+    var tolerance = tolerance || this.dropTolerance;
+    
+    var ctLeft = this.container.getLeft();
+    var ctTop  = this.container.getTop();
+    
+    var withinX = Math.abs(this.el.getLeft() - ctLeft - this.xOffset) <= tolerance;
+    var withinY = Math.abs(this.el.getTop()  - ctTop  - this.yOffset) <= tolerance;
+    
+    return withinX && withinY;
   },
   
   /**
@@ -68,8 +95,7 @@ Ext.extend(Jigsaw.Piece, Ext.Component, {
    * @return {Boolean} True if this piece is in the right position
    */
   isInCorrectPosition: function() {
-    return (this.el.getLeft() - this.container.getLeft() == this.xOffset) && 
-           (this.el.getTop()  - this.container.getTop()  == this.yOffset);
+    return this.withinDropTolerance(0);
   }
 });
 
